@@ -9,7 +9,7 @@ typedef struct Part {
 } Part;
 
 typedef struct Component {
-    int known; // Is the component known to the repair crew
+    int fixed; // Is the component known to the repair crew
     int part_req; // The part required to fix
     int num_comp_rev; // Number of components revealed when fixed
     int * comp_rev; // Array of revealed components when fixed
@@ -69,12 +69,103 @@ int main() {
         for(int j = 0; j < components[i].num_comp_rev; j++)
             scanf("%d", &components[i].comp_rev[j]);
 
-        // Set component to unknown
-        components[i].known = 0;
+        // Set component to not fixed
+        components[i].fixed = 0;
     }
 
-    
+    // Create needed queue
+    Queue * fixQueue = createQueue();
 
+    // Track if ship is fully fixed
+    int shipFixed = 0;
+
+    // Track cost of repairs
+    int totalCost = 0;
+
+    // Check ship until fixed
+    while(!shipFixed) {
+        // Set ship to fixed, this will be changed
+        // later if the ship isn't actually fixed
+        shipFixed = 1;
+        
+        // Check if fixes are in queue
+        if(!isEmpty(fixQueue)) {
+            // Set ship to broken
+            shipFixed = 0;
+            
+            // Keep working through queue until
+            // all components are fixed
+            while(!isEmpty(fixQueue)) {
+                // Get component at front of queue
+                int frontQueue = front(fixQueue);
+
+                // Check if component is already fixed
+                if(components[frontQueue].fixed) {
+                    // Remove component from queue
+                    dequeue(fixQueue);
+
+                    // Continue checks
+                    continue;
+                }
+
+                // Check if part needs to be purchased
+                if(parts[components[frontQueue].part_req - 1].count == 0) {  // Part not found
+                    // TODO - purchasing wrong part
+                    // Purchase part
+                    totalCost += parts[components[frontQueue].part_req - 1].price;
+                    parts[components[frontQueue].part_req - 1].count++;
+
+                    // Inventory extra part
+                    parts[parts[components[frontQueue].part_req - 1].extra_part - 1].count++;
+
+                    // Add component to back of the queue
+                    enqueue(fixQueue, frontQueue);
+
+                    // Remove component from front of the queue
+                    dequeue(fixQueue);
+                } else {    // Part is found
+                    // Use that part
+                    parts[components[frontQueue].part_req - 1].count--;
+
+                    // Set component as fixed
+                    components[frontQueue].fixed = 1;
+
+                    // Remove component from queue to be fixed
+                    dequeue(fixQueue);
+                }
+            }
+        } else {
+            // Queue is empty, check components in order
+            for(int i = 0; i < numComponents; i++) {
+                // Check if part needs to be fixed
+                if(!components[i].fixed) {
+                    // Set ship to broken
+                    shipFixed = 0;
+
+                    // Check if part needs to be purchased
+                    if(parts[components[i].part_req - 1].count == 0) {  // Part not found
+                        // Purchase part
+                        totalCost += parts[components[i].part_req - 1].price;
+                        totalCost += parts[components[i].part_req - 1].count++;
+
+                        // Inventory extra part
+                        parts[parts[components[i].part_req - 1].extra_part - 1].count++;
+                    }
+
+                    // Queue component to be fixed
+                    enqueue(fixQueue, i);
+
+                    // Leave for loop
+                    break;
+                }
+            }
+        }
+    }
+
+    printf("%d\n", totalCost);
+
+    // Free alocated memory
+    deleteQueue(fixQueue);
     free(components->comp_rev);
     free(components);
     free(parts);
