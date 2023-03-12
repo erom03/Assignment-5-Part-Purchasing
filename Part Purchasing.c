@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 typedef struct Part {
     int count; // The number of this part available
@@ -13,6 +14,28 @@ typedef struct Component {
     int num_comp_rev; // Number of components revealed when fixed
     int * comp_rev; // Array of revealed components when fixed
 } Component;
+
+typedef struct Node {
+    struct Node * next;
+    int data;
+} Node;
+
+typedef struct Queue {
+    Node * tail;
+} Queue;
+
+// Linked List Prototypes
+Node * createNode(int data);
+Node * insertTail(Node * tail, int data);
+Node * removeHead(Node * tail);
+
+// Queue Prototypes
+Queue * createQueue();
+void deleteQueue(Queue * q);
+void enqueue(Queue * q, int data);
+void dequeue(Queue * q);
+int front(Queue * q);
+int isEmpty(Queue * q);
 
 int main() {
     // Get number of parts
@@ -45,14 +68,127 @@ int main() {
         // Store the components revealed
         for(int j = 0; j < components[i].num_comp_rev; j++)
             scanf("%d", &components[i].comp_rev[j]);
+
+        // Set component to unknown
+        components[i].known = 0;
     }
 
-
-
+    
 
     free(components->comp_rev);
     free(components);
     free(parts);
 
     return 0;
+}
+
+// Linked List Functions
+// Function to create a Node
+Node * createNode(int data) {
+    // Allocation
+    Node * res = (Node *) malloc(sizeof(Node));
+
+    // Intialization
+    res->data = data;
+    res->next = res; // self, because circular
+    
+    // Return
+    return res;
+}
+
+// Function to insert a new tail into a linked list
+// Returns resulting tail
+Node * insertTail(Node * tail, int data) {
+    Node * newTail = createNode(data);
+
+    // Empty list case
+    if (tail == NULL) {
+        return newTail;
+    }
+
+    // At least 1 node case
+    // The resulting tail's next should point to old head
+    newTail->next = tail->next;
+
+    // The new tail should follow after the old tail
+    tail->next = newTail;
+
+    // Return the resulting tail
+    return newTail;
+}
+
+Node * removeHead(Node * tail) {
+    // Empty list case
+    if (tail == NULL) {
+        return NULL;
+    }
+    
+    // Single node list case
+    if (tail->next == tail) {
+        free(tail);
+        return NULL;
+    }
+
+    // More than 1 node case
+    // Get the new head
+    Node * newHead = tail->next->next;
+
+    // Free the oldhead
+    free(tail->next);
+
+    // Link the tail to the head
+    tail->next = newHead;
+
+    // Return the tail
+    return tail;
+}
+
+// Queue Prototypes
+// Function to create a Queue
+Queue * createQueue() {
+    // Allocate
+    Queue * res = (Queue *) malloc(sizeof(Queue));
+
+    // Initilaize
+    res->tail = NULL;
+
+    // Return
+    return res;
+}
+
+// Function to delete all the memory assoricated with queue
+void deleteQueue(Queue * q) {
+    // Delete all the values in the queue
+    while (!isEmpty(q)) {
+        dequeue(q);
+    }
+    
+    // Remove the queue
+    free(q);
+}
+
+// Function to add some data to the queue
+void enqueue(Queue * q, int data) {
+    // Use the linked list function to add a node
+    q->tail = insertTail(q->tail, data);
+}
+
+// Function to remove the front of the queue
+void dequeue(Queue * q) {
+    // Use the linked list function to remove a node
+    q->tail = removeHead(q->tail);
+}
+
+// Function to return the element at the front of the queue
+int front(Queue * q) {
+    // Ensure that there is a value
+    assert(!isEmpty(q));
+
+    // Return the value at the head
+    return q->tail->next->data;
+}
+
+// Function to check that the queue is empty
+int isEmpty(Queue * q) {
+    return (q->tail == NULL);
 }
