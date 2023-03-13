@@ -160,7 +160,10 @@ int main() {
 
     // Free alocated memory
     deleteQueue(fixQueue);
-    free(components->comp_rev);
+    
+    for(int i = 0; i < numComponents; i++)
+        free(components[i].comp_rev);
+        
     free(components);
     free(parts);
 
