@@ -10,6 +10,7 @@ typedef struct Part {
 
 typedef struct Component {
     int fixed; // Is the component known to the repair crew
+    int known; // If the compenent has been queued before
     int part_req; // The part required to fix
     int num_comp_rev; // Number of components revealed when fixed
     int * comp_rev; // Array of revealed components when fixed
@@ -131,8 +132,10 @@ int main() {
                     components[frontQueue].fixed = 1;
 
                     // Queue uncovered repairs needed
-                    for(int i = 0; i < components[frontQueue].num_comp_rev; i++)
-                        enqueue(fixQueue, components[frontQueue].comp_rev[i] - 1);
+                    for(int i = 0; i < components[frontQueue].num_comp_rev; i++) {
+                        if(!components[components[frontQueue].comp_rev[i]].known)
+                            enqueue(fixQueue, components[frontQueue].comp_rev[i] - 1);
+                    }
 
                     // Remove component from queue to be fixed
                     dequeue(fixQueue);
@@ -163,7 +166,7 @@ int main() {
     
     for(int i = 0; i < numComponents; i++)
         free(components[i].comp_rev);
-        
+
     free(components);
     free(parts);
 
