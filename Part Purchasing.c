@@ -130,6 +130,10 @@ int main() {
                     // Set component as fixed
                     components[frontQueue].fixed = 1;
 
+                    // Queue uncovered repairs needed
+                    for(int i = 0; i < components[frontQueue].num_comp_rev; i++)
+                        enqueue(fixQueue, components[frontQueue].comp_rev[i] - 1);
+
                     // Remove component from queue to be fixed
                     dequeue(fixQueue);
                 }
@@ -141,16 +145,6 @@ int main() {
                 if(!components[i].fixed) {
                     // Set ship to broken
                     shipFixed = 0;
-
-                    // Check if part needs to be purchased
-                    if(parts[components[i].part_req - 1].count == 0) {  // Part not found
-                        // Purchase part
-                        totalCost += parts[components[i].part_req - 1].price;
-                        totalCost += parts[components[i].part_req - 1].count++;
-
-                        // Inventory extra part
-                        parts[parts[components[i].part_req - 1].extra_part - 1].count++;
-                    }
 
                     // Queue component to be fixed
                     enqueue(fixQueue, i);
