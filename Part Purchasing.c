@@ -72,6 +72,9 @@ int main() {
 
         // Set component to not fixed
         components[i].fixed = 0;
+
+        // Set component to unknown
+        components[i].known = 0;
     }
 
     // Create needed queue
@@ -133,8 +136,13 @@ int main() {
 
                     // Queue uncovered repairs needed
                     for(int i = 0; i < components[frontQueue].num_comp_rev; i++) {
-                        if(!components[components[frontQueue].comp_rev[i]].known)
+                        if(!components[components[frontQueue].comp_rev[i] - 1].known) {   
+                            // Only queue unknown components
                             enqueue(fixQueue, components[frontQueue].comp_rev[i] - 1);
+
+                            // Mark component as known
+                            components[components[frontQueue].comp_rev[i] - 1].known = 1;
+                        }
                     }
 
                     // Remove component from queue to be fixed
