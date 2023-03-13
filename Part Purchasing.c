@@ -114,7 +114,6 @@ int main() {
 
                 // Check if part needs to be purchased
                 if(parts[components[frontQueue].part_req - 1].count == 0) {  // Part not found
-                    // TODO - purchasing wrong part
                     // Purchase part
                     totalCost += parts[components[frontQueue].part_req - 1].price;
                     parts[components[frontQueue].part_req - 1].count++;
