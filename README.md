@@ -31,7 +31,7 @@ long run. For each part type you know the additional part type that will be orde
 of order said parts. Since it takes a little bit of time to get the part once it has been ordered, the
 crew will place the component at the end of the list of components to fix. The good news is that
 by the time the next component in the list of components to fix is examined the 2 parts ordered
-will have arrived.
+will have arrived. 
 
 You want to know the sum of all the costs of all the parts ordered based on the repair crews
 repair procedure.
